@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0e1116">
+<title>GBA Patch &amp; Play</title>
+<meta name="description" content="A GBA emulator and ROM patcher that runs in your browser. Bring your own ROM, apply patches, play anywhere, and carry your save with a code.">
+<script src="coi-serviceworker.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================= HOME: library + setup guide ================= -->
+<main id="home">
+  <header class="hero">
+    <h1>GBA Patch &amp; Play</h1>
+    <p>An emulator and ROM patcher in one page. Bring your own ROM, apply a patch if you like, play on any device, and carry your save with a short code.</p>
+  </header>
+
+  <section id="library" class="card" hidden>
+    <h2>Your games</h2>
+    <div id="games"></div>
+    <p class="note">Games are stored in this browser only. Nothing is uploaded.</p>
+  </section>
+
+  <section class="card step" id="step1">
+    <div class="num">1</div>
+    <div class="body">
+      <h2>Add a ROM</h2>
+      <p>Any GBA ROM works here, not just Pokémon. Drop in a <b>.gba</b> file (or a <b>.zip</b> containing one).</p>
+      <div class="legal">
+        <b>Pokémon Emerald base ROM:</b> you will need to obtain this yourself. Distributing ROMs is piracy and illegal in most regions.
+        <br>The legitimate route is dumping a cartridge you own. Search for <b>"how to dump a GBA cartridge"</b> to find the hardware and tools for it.
+      </div>
+      <label class="drop" id="romDrop" for="romFile"><b>Choose a ROM</b><span>or drop it anywhere on this page</span></label>
+      <input id="romFile" type="file" accept=".gba,.zip" hidden>
+      <p id="romMsg" class="msg" hidden></p>
+    </div>
+  </section>
+
+  <section class="card step" id="step2">
+    <div class="num">2</div>
+    <div class="body">
+      <h2>Patch it <span class="opt">optional</span></h2>
+      <p>Hacks and mods come as a small patch file. Add the clean base ROM above, then apply the patch here. No Lunar IPS or other tools needed. Supports <b>.ips</b>, <b>.bps</b> and <b>.ups</b> (also inside a .zip).</p>
+      <div class="patchform">
+        <label>Base ROM<select id="patchBase"></select></label>
+        <label class="drop small" for="patchFile"><b id="patchFileLabel">Choose a patch file</b></label>
+        <input id="patchFile" type="file" accept=".ips,.bps,.ups,.zip,.xdelta" hidden>
+        <label>Name<input id="patchName" placeholder="Name this game" maxlength="60"></label>
+        <button id="applyBtn" class="btn" disabled>Apply patch</button>
+      </div>
+      <p id="patchMsg" class="msg" hidden></p>
+
+      <h3>Where to find patches</h3>
+      <p class="note">Always get the patch from the hack's own page, and read which base ROM version it needs. A wrong base is the usual reason a patch fails or glitches. These links are to the creators' pages. This site hosts no patches or ROMs.</p>
+      <div class="hacks">
+        <details open>
+          <summary>Emerald Rogue <em>roguelike</em></summary>
+          <div class="hackbody">
+            <p>A fan-made roguelike built on Pokémon Emerald by Pokabbie. Each run is generated on the fly: you pick your route, catch a team, face randomized gym leaders, and spend your winnings back at a hub that unlocks more over time. There is an <b>EX</b> version (the recommended one) and a Vanilla version that keeps standard Emerald battle rules.</p>
+            <p class="meta"><b>Base ROM:</b> A clean Pokémon Emerald.</p>
+            <p class="meta">Large hack, so the first load takes a moment.</p>
+            <a class="btn dl" href="https://www.hackdex.app/hack/emerald-rogue" target="_blank" rel="noopener">Get the patch on Hackdex</a>
+          </div>
+        </details>
+        <details>
+          <summary>Emerald Kaizo <em>hard mode</em></summary>
+          <div class="hackbody">
+            <p>A very hard difficulty rebalance of Emerald, made for people who want a real challenge and the basis of most IronMON runs. Expect tougher trainers and far less room for mistakes than the original game.</p>
+            <p class="meta"><b>Base ROM:</b> Clean Pokémon Emerald (USA). It is an IPS patch, so a wrong base will not be caught: use the exact version the thread names.</p>
+            <a class="btn dl" href="https://www.pokecommunity.com/showthread.php?t=395830" target="_blank" rel="noopener">Open the download thread</a>
+          </div>
+        </details>
+        <details>
+          <summary>IronMON <em>challenge ruleset</em></summary>
+          <div class="hackbody">
+            <p>IronMON is a challenge format rather than a single hack: one run, high stakes, usually on a Kaizo-style ROM that has also been randomized. Community guides describe three steps: patch Emerald with Kaizo here, randomize it with the desktop <i>Universal Pokémon Randomizer</i> using the IronMON settings, then add the resulting ROM back here as a new game. The Ironmon Tracker overlay is a BizHawk script for desktop and does not run in a browser.</p>
+            <p class="meta"><b>Base ROM:</b> Clean Pokémon Emerald, then Kaizo, then the randomizer.</p>
+            <a class="btn dl" href="https://github.com/besteon/Ironmon-Tracker" target="_blank" rel="noopener">Ironmon Tracker on GitHub</a>
+          </div>
+        </details>
+        <details>
+          <summary>Pokémon Modern Emerald <em>quality of life</em></summary>
+          <div class="hackbody">
+            <p>A modernization of Emerald: double-speed battles, following Pokémon, a better Battle Frontier and many other quality-of-life changes. Patch a <b>clean</b> Emerald, not one already patched with something else. New versions can break old saves.</p>
+            <p class="meta"><b>Base ROM:</b> A clean Pokémon Emerald.</p>
+            <a class="btn dl" href="https://www.pokecommunity.com/threads/pok%C3%A9mon-modern-emerald-3-6-open-source-double-speed-battles-following-pok%C3%A9mon-better-battle-frontier-and-more.494005/" target="_blank" rel="noopener">Open the release thread</a>
+          </div>
+        </details>
+        <details>
+          <summary>Pokémon Too Many Types <em>new type chart</em></summary>
+          <div class="hackbody">
+            <p>A fan-made Emerald hack that blows up the type chart from 18 types to dozens, lets Pokémon carry up to three types, and adds new and reworked moves. Gym leaders and the Elite Four use the new types too. A sequel exists with even more types and a new story.</p>
+            <p class="meta"><b>Base ROM:</b> A clean Pokémon Emerald.</p>
+            <p class="meta">Some download sites for this hack are unreliable. Stick to the official links.</p>
+            <a class="btn dl" href="https://pokemontoomanytypes.com/" target="_blank" rel="noopener">Go to the official site</a>
+          </div>
+        </details>
+        <details>
+          <summary>Super Mariomon <em>crossover</em></summary>
+          <div class="hackbody">
+            <p>A big fan-made Emerald hack from Too Many Productions that turns the Mushroom Kingdom into a Pokémon-style region, with Mario characters as catchable "Mariomon", a new region and a full post-game. It ships as a BPS patch, so this page can verify it. The team warns that only its official links are safe.</p>
+            <p class="meta"><b>Base ROM:</b> A clean Pokémon Emerald (USA / Europe).</p>
+            <a class="btn dl" href="https://supermariomon.com/" target="_blank" rel="noopener">Go to the official site</a>
+          </div>
+        </details>
+      </div>
+      <p class="note">Got an <b>.xdelta</b> patch? Those are not supported yet. Most hacks also offer IPS or BPS.</p>
+    </div>
+  </section>
+
+  <section class="card step" id="step3">
+    <div class="num">3</div>
+    <div class="body">
+      <h2>Play and save anywhere</h2>
+      <p>Press Play on a game above. Save in the game as you normally would, then open <b>Save</b> in the toolbar to get a short code. On any other device, add the same game, open Save, and enter the code to continue.</p>
+      <p class="note">Controls: arrows, Z = A, X = B, A / S = L / R, Enter = Start, Backspace = Select, hold Space to fast-forward. On phones, use the on-screen pad.</p>
+    </div>
+  </section>
+
+  <footer class="foot">Emulation by mGBA (compiled to WebAssembly). This site does not include or distribute any games.</footer>
+</main>
+
+<!-- ================= PLAY ================= -->
+<main id="play" hidden>
+  <div class="bar">
+    <button id="back" class="tool" aria-label="Back to games">&#9664; Games</button>
+    <span id="gameName"></span>
+    <span id="status"></span>
+    <button id="saveBtn" class="tool" disabled>Save</button>
+    <button id="ff" class="tool" aria-pressed="false" title="Fast-forward">&#9193;</button>
+    <button id="mute" class="tool" aria-pressed="false" title="Sound">&#128266;</button>
+  </div>
+  <div id="stage">
+    <div id="screenWrap">
+      <canvas id="screen" width="240" height="160"></canvas>
+      <div id="overlay" hidden><div id="overlayBody"></div></div>
+    </div>
+    <button class="pb sh l" data-b="L">L</button>
+    <button class="pb sh r" data-b="R">R</button>
+    <div id="dpad" aria-label="Directional pad"><span class="u"></span><span class="d"></span><span class="lf"></span><span class="rt"></span></div>
+    <div class="ab"><button class="pb b" data-b="B">B</button><button class="pb a" data-b="A">A</button></div>
+    <div class="mid"><button class="pb pill" data-b="Select">SELECT</button><button class="pb pill" data-b="Start">START</button></div>
+  </div>
+</main>
+
+<!-- ================= SAVE / CONTINUE SHEET ================= -->
+<dialog id="saves">
+  <form method="dialog" class="sheet">
+    <div class="sheet-head"><h2>Save &amp; continue</h2><button class="tool" value="close">Close</button></div>
+    <p class="note">First save inside the game (usually START &gt; SAVE). Then get a code here.</p>
+    <div class="row"><button id="getCode" class="btn" type="button">Get save code</button><span id="codeOut"></span></div>
+    <div class="row"><input id="codeIn" placeholder="Enter a save code" maxlength="12" autocomplete="off" spellcheck="false" autocapitalize="characters"><button id="loadCode" class="btn" type="button">Continue</button></div>
+    <p id="sheetMsg" class="msg" hidden></p>
+    <div class="row links">
+      <button id="dl" class="link" type="button">Download .sav</button>
+      <label class="link" for="savFile">Upload .sav</label><input id="savFile" type="file" accept=".sav" hidden>
+      <button id="copyFull" class="link" type="button">Copy full save text</button>
+      <button id="pasteFull" class="link" type="button">Paste full save text</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="config.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
